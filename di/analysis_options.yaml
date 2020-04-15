@@ -1,0 +1,13 @@
+include: package:effective_dart/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/*.g.dart
+    - lib/**/*.g.dart
+
+linter:
+  rules:
+    always_declare_return_types: true
+    avoid_catches_without_on_clauses: false
+    public_member_api_docs: false
