@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 class ServiceProvider {
   // ---------------------------- CONSTRUCTORS ----------------------------
   /// Create new [ServiceProvider].
-  const ServiceProvider._();
+  ServiceProvider._();
 
   /// Get the singleton instance of [ServiceProvider].
   factory ServiceProvider() {
@@ -21,7 +21,7 @@ class ServiceProvider {
 
   // ------------------------------- FIELDS -------------------------------
   /// List of resolvable singleton services.
-  final _services = const <Type, _Resolver<dynamic>>{};
+  final _services = <Type, _Resolver<dynamic>>{};
 
   /// Register a service which will always be resolved to a very same instance
   /// each time the service is requested.
