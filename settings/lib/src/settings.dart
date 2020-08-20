@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive/hive.dart';
 
 /// Contracts for loading and storing settings for this app.
 abstract class ISettings {
@@ -51,8 +51,8 @@ abstract class ISettings {
 
   // --------------------------- STATIC METHODS ---------------------------
   /// Creates new object which implements [ISettings].
-  static Future<ISettings> create() async {
-    return await _Settings._create();
+  static Future<ISettings> create(List<int> encryptionKey) async {
+    return await _Settings._create(encryptionKey);
   }
 }
 
@@ -60,81 +60,58 @@ abstract class ISettings {
 class _Settings extends ISettings {
   // ---------------------------- CONSTRUCTORS ----------------------------
   /// Create new [_Settings].
-  const _Settings(this._sp);
+  const _Settings(this._box);
 
   // ------------------------------- FIELDS -------------------------------
   /// Settings accessor.
-  final SharedPreferences _sp;
+  final Box _box;
 
   // ------------------------------- METHODS ------------------------------
   @override
   bool getBool(String key, bool defaultValue) {
-    final value = _sp.getBool(key);
-    if (value == null) {
-      _sp.setBool(key, defaultValue);
-      return defaultValue;
-    }
-
-    return value;
+    return _box.get(key, defaultValue: defaultValue);
   }
 
   @override
   double getDouble(String key, double defaultValue) {
-    final value = _sp.getDouble(key);
-    if (value == null) {
-      _sp.setDouble(key, defaultValue);
-      return defaultValue;
-    }
-
-    return value;
+    return _box.get(key, defaultValue: defaultValue);
   }
 
   @override
   int getInt(String key, int defaultValue) {
-    final value = _sp.getInt(key);
-    if (value == null) {
-      _sp.setInt(key, defaultValue);
-      return defaultValue;
-    }
-
-    return value;
+    return _box.get(key, defaultValue: defaultValue);
   }
 
   @override
   String getString(String key, String defaultValue) {
-    final value = _sp.getString(key);
-    if (value == null) {
-      _sp.setString(key, defaultValue);
-      return defaultValue;
-    }
-
-    return value;
+    return _box.get(key, defaultValue: defaultValue);
   }
 
   @override
   void setBool(String key, bool value) {
-    _sp.setBool(key, value);
+    _box.put(key, value);
   }
 
   @override
   void setDouble(String key, double value) {
-    _sp.setDouble(key, value);
+    _box.put(key, value);
   }
 
   @override
   void setInt(String key, int value) {
-    _sp.setInt(key, value);
+    _box.put(key, value);
   }
 
   @override
   void setString(String key, String value) {
-    _sp.setString(key, value);
+    _box.put(key, value);
   }
 
   // --------------------------- STATIC METHODS ---------------------------
   /// Create new instance of this [_Settings] class.
-  static Future<ISettings> _create() async {
-    final sp = await SharedPreferences.getInstance();
-    return _Settings(sp);
+  static Future<ISettings> _create(List<int> encryptionKey) async {
+    final cipher = encryptionKey != null ? HiveAesCipher(encryptionKey) : null;
+    final box = await Hive.openBox('settings-box', encryptionCipher: cipher);
+    return _Settings(box);
   }
 }
