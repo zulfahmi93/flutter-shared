@@ -24,7 +24,7 @@ class L {
   static List<Locale> _supportedLocales;
 
   /// Default Locale.
-  static Map<String, _LE> _localisationData;
+  static Map<String, LocalizationEntry> _localisationData;
 
   /// Debug mode flag.
   static bool _isDebug;
@@ -33,7 +33,7 @@ class L {
   static void initialise({
     @required String defaultLanguage,
     @required List<String> supportedLanguages,
-    @required Map<String, _LE> localisationData,
+    @required Map<String, LocalizationEntry> localisationData,
     bool isDebug = false,
   }) {
     assert(supportedLanguages != null);
@@ -91,10 +91,10 @@ class L {
 }
 
 /// Single entry for localisation data.
-class _LE {
+class LocalizationEntry {
   // ---------------------------- CONSTRUCTORS ----------------------------
-  /// Create new [_LE].
-  const _LE({@required this.data});
+  /// Create new [LocalizationEntry].
+  const LocalizationEntry({@required this.data});
 
   // ------------------------------- FIELDS -------------------------------
   /// Localisation data.
