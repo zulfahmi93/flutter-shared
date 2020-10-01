@@ -1,13 +1,13 @@
 name: simple_settings
 description: Simple settings component.
-version: 0.1.0
+version: 0.2.0
 author: Zulfahmi Ahmad <zulfahmi93@outlook.com>
 
 environment:
   sdk: '>=2.7.0 <3.0.0'
 
 dependencies:
-  hive: ^1.4.3
+  hive: ^1.4.4
 
 dev_dependencies:
   effective_dart: ^1.2.4

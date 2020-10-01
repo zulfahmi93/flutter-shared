@@ -5,3 +5,6 @@
 - Removed dependency to the Flutter SDK.
 - Changed the implementation from `shared_preferences` to `hive`.
 - Upgraded all dependencies.
+
+### 0.2.0
+- Added `storageName` parameter to the `ISettings.create` method.

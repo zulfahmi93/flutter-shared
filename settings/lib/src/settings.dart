@@ -51,8 +51,11 @@ abstract class ISettings {
 
   // --------------------------- STATIC METHODS ---------------------------
   /// Creates new object which implements [ISettings].
-  static Future<ISettings> create(List<int> encryptionKey) async {
-    return await _Settings._create(encryptionKey);
+  static Future<ISettings> create({
+    String storageName,
+    List<int> encryptionKey,
+  }) async {
+    return await _Settings._create(storageName, encryptionKey);
   }
 }
 
@@ -109,9 +112,10 @@ class _Settings extends ISettings {
 
   // --------------------------- STATIC METHODS ---------------------------
   /// Create new instance of this [_Settings] class.
-  static Future<ISettings> _create(List<int> encryptionKey) async {
+  static Future<ISettings> _create(String name, List<int> encryptionKey) async {
+    final storageName = name != null ? name : 'settings-box';
     final cipher = encryptionKey != null ? HiveAesCipher(encryptionKey) : null;
-    final box = await Hive.openBox('settings-box', encryptionCipher: cipher);
+    final box = await Hive.openBox(storageName, encryptionCipher: cipher);
     return _Settings(box);
   }
 }
