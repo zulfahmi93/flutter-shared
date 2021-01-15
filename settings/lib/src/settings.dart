@@ -1,5 +1,3 @@
-import 'package:hive/hive.dart';
-
 /// Contracts for loading and storing settings for this app.
 abstract class ISettings {
   // ---------------------------- CONSTRUCTORS ----------------------------
@@ -48,74 +46,4 @@ abstract class ISettings {
   /// Set settings of specified [key] which has a runtime type of [String] to
   /// the given [value].
   void setString(String key, String value);
-
-  // --------------------------- STATIC METHODS ---------------------------
-  /// Creates new object which implements [ISettings].
-  static Future<ISettings> create({
-    String storageName,
-    List<int> encryptionKey,
-  }) async {
-    return await _Settings._create(storageName, encryptionKey);
-  }
-}
-
-/// Manage the loading and storing settings for this app.
-class _Settings extends ISettings {
-  // ---------------------------- CONSTRUCTORS ----------------------------
-  /// Create new [_Settings].
-  const _Settings(this._box);
-
-  // ------------------------------- FIELDS -------------------------------
-  /// Settings accessor.
-  final Box _box;
-
-  // ------------------------------- METHODS ------------------------------
-  @override
-  bool getBool(String key, bool defaultValue) {
-    return _box.get(key, defaultValue: defaultValue);
-  }
-
-  @override
-  double getDouble(String key, double defaultValue) {
-    return _box.get(key, defaultValue: defaultValue);
-  }
-
-  @override
-  int getInt(String key, int defaultValue) {
-    return _box.get(key, defaultValue: defaultValue);
-  }
-
-  @override
-  String getString(String key, String defaultValue) {
-    return _box.get(key, defaultValue: defaultValue);
-  }
-
-  @override
-  void setBool(String key, bool value) {
-    _box.put(key, value);
-  }
-
-  @override
-  void setDouble(String key, double value) {
-    _box.put(key, value);
-  }
-
-  @override
-  void setInt(String key, int value) {
-    _box.put(key, value);
-  }
-
-  @override
-  void setString(String key, String value) {
-    _box.put(key, value);
-  }
-
-  // --------------------------- STATIC METHODS ---------------------------
-  /// Create new instance of this [_Settings] class.
-  static Future<ISettings> _create(String name, List<int> encryptionKey) async {
-    final storageName = name != null ? name : 'settings-box';
-    final cipher = encryptionKey != null ? HiveAesCipher(encryptionKey) : null;
-    final box = await Hive.openBox(storageName, encryptionCipher: cipher);
-    return _Settings(box);
-  }
 }

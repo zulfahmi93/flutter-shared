@@ -8,3 +8,7 @@
 
 ### 0.2.0
 - Added `storageName` parameter to the `ISettings.create` method.
+
+### 0.3.0
+- Re-added dependency to the Flutter SDK.
+- Re-added `shared_preferences` implementation.
