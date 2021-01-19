@@ -1,6 +1,6 @@
 name: simple_settings
 description: Simple settings component.
-version: 0.3.0
+version: 0.3.0+1
 author: Zulfahmi Ahmad <zulfahmi93@outlook.com>
 
 environment:
