@@ -1,4 +1,4 @@
-import 'package:meta/meta.dart';
+import 'package:logging/logging.dart';
 
 /// Simple utility which helps to manage application services and retrieve
 /// the requested service when required.
@@ -13,26 +13,51 @@ class ServiceProvider {
       _instance = ServiceProvider._();
     }
 
-    return _instance;
+    // Since null checking has been done above, it is logical to put
+    // null ignore here as the [instance] will be always not null.
+    return _instance!;
   }
 
   // ---------------------------- STATIC FIELDS ---------------------------
-  static ServiceProvider _instance;
+  static ServiceProvider? _instance;
 
   // ------------------------------- FIELDS -------------------------------
   /// List of resolvable singleton services.
-  final _services = <Type, _Resolver<dynamic>>{};
+  final _services = <Type, _Resolver<dynamic, dynamic>>{};
 
   /// Register a service which will always be resolved to a very same instance
   /// each time the service is requested.
-  void registerInstance<T>({@required T service}) {
-    _services[T] = _Resolver<T>(resolvedService: service);
+  void addInstanceSingleton<T>({required T service}) {
+    Logger.root.finest('Adding singleton instance of type $T.');
+    _services[T] = _SingletonInstanceResolver<T>(
+      resolvedInstance: service,
+    );
   }
 
-  /// Register a service which will be resolved using the given resolver
-  /// function each time the service is requested.
-  void registerResolver<T>({@required ResolverFunction<T> resolver}) {
-    _services[T] = _Resolver<T>(resolver: resolver);
+  /// Register a service which will always be resolved to a very same instance
+  /// each time the service is requested.
+  void addSingleton<T>({required ResolverFunction<Null, T> resolver}) {
+    addSingletonWithArgs(resolver: resolver);
+  }
+
+  /// Register a service which will always be resolved to a very same instance
+  /// each time the service is requested.
+  void addSingletonWithArgs<S, T>({required ResolverFunction<S, T> resolver}) {
+    Logger.root.finest('Adding singleton resolver of type $T.');
+    _services[T] = _SingletonResolver<S, T>(resolver: resolver);
+  }
+
+  /// Register a service which will always be resolved to a very same instance
+  /// each time the service is requested.
+  void addTransient<T>({required ResolverFunction<Null, T> resolver}) {
+    addTransientWithArgs(resolver: resolver);
+  }
+
+  /// Register a service which will always be resolved to a very same instance
+  /// each time the service is requested.
+  void addTransientWithArgs<S, T>({required ResolverFunction<S, T> resolver}) {
+    Logger.root.finest('Adding transient resolver of type $T.');
+    _services[T] = _TransientResolver<S, T>(resolver: resolver);
   }
 
   /// Reset this service provider.
@@ -43,38 +68,49 @@ class ServiceProvider {
   // ------------------------------- METHODS ------------------------------
   /// Get requested service of given type.
   ///
-  /// By default, this method will throw [_DependencyNotFoundError] if the
-  /// requested service is not registered. Set the [throwIfNotFound] parameter
-  /// to `false` to change this behaviour.
-  T getService<T>({dynamic args, bool throwIfNotFound = true}) {
+  /// This method will throw [DependencyNotFoundError] if the requested service
+  /// is not registered.
+  T getService<T>() => getServiceWithArgs<Null, T>();
+
+  /// Get requested service of given type.
+  ///
+  /// This method will throw [DependencyNotFoundError] if the requested service
+  /// is not registered.
+  T getServiceWithArgs<S, T>({S? args}) {
     if (!_services.containsKey(T)) {
-      print('Failed to resolve dependency! Type: $T');
-      if (throwIfNotFound) {
-        throw _DependencyNotFoundError(T);
-      } else {
-        return null;
-      }
+      Logger.root.severe('Failed to resolve dependency! Type: $T');
+      throw DependencyNotFoundError(T);
     }
 
-    final _Resolver<T> details = _services[T];
+    final resolver = _services[T];
 
-    // Auto resolve.
-    if (details.resolvedService == null) {
-      if (details.resolver != null) {
-        details.resolvedService = details.resolver(args);
-      }
+    if (resolver is _SingletonInstanceResolver<T>) {
+      return resolver.resolvedInstance;
     }
 
-    return details.resolvedService;
+    if (resolver is _TransientResolver<S, T>) {
+      return resolver.resolve(args);
+    }
+
+    if (resolver is _SingletonResolver<S, T>) {
+      final resolved = resolver.resolve(args);
+      _services.remove(T);
+      _services[T] = _SingletonInstanceResolver<T>(
+        resolvedInstance: resolved,
+      );
+      return resolved;
+    }
+
+    throw DependencyNotFoundError(T);
   }
 }
 
 /// Error which is thrown when dependency resolver failed to resolve required
 /// dependency asked.
-class _DependencyNotFoundError extends Error {
+class DependencyNotFoundError extends Error {
   // ---------------------------- CONSTRUCTORS ----------------------------
-  /// Create new [_DependencyNotFoundError].
-  _DependencyNotFoundError(this.dependencyType);
+  /// Create new [DependencyNotFoundError].
+  DependencyNotFoundError(this.dependencyType);
 
   // ------------------------------- FIELDS -------------------------------
   /// Type of required dependency which is failed to be resolved.
@@ -82,24 +118,68 @@ class _DependencyNotFoundError extends Error {
 }
 
 /// Contains the information to help the service resolver to resolve the
-/// requested service.
-class _Resolver<T> {
+/// requested service. This is an abstract class.
+// ignore: one_member_abstracts
+abstract class _Resolver<S, T> {
+  // ------------------------------- FIELDS -------------------------------
+  /// Resolver method. Should be automatically invoked when requested service
+  /// is not present but this method is present.
+  T resolve(S? args);
+}
+
+/// Implements the [_Resolver] class by using transient service lifetime.
+class _TransientResolver<S, T> extends _Resolver<S, T> {
   // ---------------------------- CONSTRUCTORS ----------------------------
-  /// Create new [_Resolver].
-  _Resolver({
-    this.resolvedService,
-    this.resolver,
+  /// Create new [_TransientResolver].
+  _TransientResolver({
+    required this.resolver,
   });
 
   // ------------------------------- FIELDS -------------------------------
   /// Resolver method. Should be automatically invoked when requested service
   /// is not present but this method is present.
-  final ResolverFunction<T> resolver;
+  final ResolverFunction<S?, T> resolver;
 
+  // ------------------------------- METHODS ------------------------------
+  @override
+  T resolve(S? args) => resolver(args);
+}
+
+/// Implements the [_Resolver] class by using singleton service lifetime.
+class _SingletonResolver<S, T> extends _Resolver<S, T> {
+  // ---------------------------- CONSTRUCTORS ----------------------------
+  /// Create new [_SingletonResolver].
+  _SingletonResolver({
+    required this.resolver,
+  });
+
+  // ------------------------------- FIELDS -------------------------------
+  /// Resolver method. Should be automatically invoked when requested service
+  /// is not present but this method is present.
+  final ResolverFunction<S?, T> resolver;
+
+  // ------------------------------- METHODS ------------------------------
+  @override
+  T resolve(S? args) => resolver(args);
+}
+
+/// Implements the [_Resolver] class by using singleton service lifetime.
+class _SingletonInstanceResolver<T> extends _Resolver<Null, T> {
+  // ---------------------------- CONSTRUCTORS ----------------------------
+  /// Create new [_SingletonInstanceResolver].
+  _SingletonInstanceResolver({
+    required this.resolvedInstance,
+  });
+
+  // ------------------------------- FIELDS -------------------------------
   /// The requested service.
-  T resolvedService;
+  final T resolvedInstance;
+
+  // ------------------------------- METHODS ------------------------------
+  @override
+  T resolve(_) => resolvedInstance;
 }
 
 /// Type alias for function which asynchronously resolve the required
 /// dependency.
-typedef ResolverFunction<T> = T Function(dynamic args);
+typedef ResolverFunction<S, T> = T Function(S? args);

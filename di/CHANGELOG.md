@@ -6,3 +6,7 @@
 
 ### 0.1.0
 - Upgraded all dependencies.
+
+### 0.2.0
+- Migrated to non-nullable by default.
+- Added the singleton and transient service lifetime.
