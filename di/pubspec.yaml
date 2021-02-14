@@ -1,7 +1,8 @@
 name: simple_di
 description: Simple dependency injection component.
-version: 0.2.0
+version: 1.0.0
 author: Zulfahmi Ahmad <zulfahmi93@outlook.com>
+homepage: https://zulfahmi.dev
 
 environment:
   sdk: '>=2.12.0-0 <3.0.0'
