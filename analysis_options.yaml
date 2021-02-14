@@ -1,0 +1,17 @@
+include: package:effective_dart/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/*.g.dart
+    - lib/*.freezed.dart
+    - lib/**/*.g.dart
+    - lib/**/*.freezed.dart
+    - shared_components/**/*.*
+
+linter:
+  rules:
+    always_declare_return_types: true
+    avoid_catches_without_on_clauses: false
+    prefer_single_quotes: true
+    public_member_api_docs: false
