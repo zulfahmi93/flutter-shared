@@ -1,26 +1,35 @@
 import 'package:intl/intl.dart';
 
-// ------------------------------ VARIABLES -----------------------------
+// ------------------------------ PROPERTIES -----------------------------
+
+/**
+ * The following are defined as properties as it must be newly constructed each
+ * time format request is made. The reason is so that the changes made to the
+ * Intl.defaultLocale property will be reflected to the requested formatters
+ * below. Otherwise, the formatters will always has en_US as their default
+ * locale.
+ */
+
 /// Date formatter.
-final DateFormat _dateFormatter = DateFormat.yMMMd();
+DateFormat get _dateFormatter => DateFormat.yMMMd();
 
 /// Date & time formatter.
-final DateFormat _dateTimeFormatter = DateFormat.yMMMd().add_jm();
+DateFormat get _dateTimeFormatter => DateFormat.yMMMd().add_jm();
 
 /// Date & time with seconds formatter.
-final DateFormat _dateTimeWithSecondsFormatter = DateFormat.yMMMd().add_jms();
+DateFormat get _dateTimeWithSecondsFormatter => DateFormat.yMMMd().add_jms();
 
 /// Time formatter.
-final DateFormat _timeFormatter = DateFormat.jm();
+DateFormat get _timeFormatter => DateFormat.jm();
 
 /// Time with seconds formatter.
-final DateFormat _timeWithSecondsFormatter = DateFormat.jms();
+DateFormat get _timeWithSecondsFormatter => DateFormat.jms();
 
 /// Day of week formatter.
-final DateFormat _shortDayOfWeekFormatter = DateFormat.E();
+DateFormat get _shortDayOfWeekFormatter => DateFormat.E();
 
 /// Day of week formatter.
-final DateFormat _longDayOfWeekFormatter = DateFormat.EEEE();
+DateFormat get _longDayOfWeekFormatter => DateFormat.EEEE();
 
 // ------------------------------ FUNCTIONS -----------------------------
 String formatDate({

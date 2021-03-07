@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:intl/intl.dart';
 import 'package:intl/locale.dart';
 
 // ------------------------------- CLASSES ------------------------------
@@ -26,7 +27,11 @@ class SimpleLocalisation {
     } else {
       _isDebug = isDebug;
     }
-    _isInitialised = true;
+    if (!supportedLanguages.contains(defaultLanguage)) {
+      throw StateError(
+        'Default language is not included in the list of supported languages!',
+      );
+    }
   }
 
   // ------------------------------- FIELDS -------------------------------
@@ -52,9 +57,6 @@ class SimpleLocalisation {
   /// Flags to determine if the code is running in debug mode.
   bool _isDebug = true;
 
-  /// Flags to determine whether the localisation has been initialised.
-  bool _isInitialised = false;
-
   /// Current Language.
   String _language;
 
@@ -65,10 +67,6 @@ class SimpleLocalisation {
   // ------------------------------- METHODS ------------------------------
   /// Gets the localised text of given [key].
   String get(String key) {
-    if (!_isInitialised) {
-      throw _LocalisationError(reason: 'Localisation is not initialised!');
-    }
-
     if (_localisationData.containsKey(key)) {
       // Key existence check has been done.
       final entry = _localisationData[key]!;
@@ -80,8 +78,18 @@ class SimpleLocalisation {
   }
 
   /// Change to another language given by [newLanguage].
-  void changeLanguage(String newLanguage) {
+  void changeLanguage(String? newLanguage) {
+    if (newLanguage == null) {
+      newLanguage = _defaultLanguage;
+    }
+
+    final locale = Locale.parse(newLanguage);
+    if (!_supportedLocales.contains(locale)) {
+      throw UnsupportedError('Language $newLanguage is not supported!');
+    }
+
     _language = newLanguage;
+    Intl.defaultLocale = _language;
     _onLanguageChanged?.call(_language);
     _languageChangeStream.add(_language);
   }
@@ -158,15 +166,6 @@ class LocalisationEntry {
   // ------------------------------- FIELDS -------------------------------
   /// Localisation data.
   final Map<String, String> data;
-}
-
-/// Error
-class _LocalisationError extends Error {
-  // ---------------------------- CONSTRUCTORS ----------------------------
-  _LocalisationError({required this.reason});
-
-  // ------------------------------- FIELDS -------------------------------
-  final String reason;
 }
 
 // ------------------------------ TYPEDEFS ------------------------------

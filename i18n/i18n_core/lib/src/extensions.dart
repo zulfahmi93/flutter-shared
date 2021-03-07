@@ -57,7 +57,7 @@ extension SimpleLocalisationDateTimeExtensions on DateTime {
 
   /// Gets the formatted time with seconds string of the current [DateTime].
   String get timeWithSecondsFormattedString {
-    return formatTime(dateTime: this, includeSeconds: false);
+    return formatTime(dateTime: this, includeSeconds: true);
   }
 
   /// Gets the formatted time string of the current [DateTime].
@@ -83,7 +83,7 @@ extension SimpleLocalisationDateTimeExtensions on DateTime {
 
 extension SimpleLocalisationDurationExtensions on Duration {
   /// Gets only the week component of the current [Duration].
-  int get week {
+  int get weeks {
     return getWeekComponent(this);
   }
 
