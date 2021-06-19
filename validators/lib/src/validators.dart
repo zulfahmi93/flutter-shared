@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:simple_extensions/simple_extensions.dart';
+
 final _alphanumeric = RegExp(r'^[a-zA-Z0-9]+$');
 
 final _email = RegExp(
@@ -216,7 +218,7 @@ extension StringValidatorExtensions on String {
     List<String> hostWhitelist = const [],
     List<String> hostBlacklist = const [],
   }) {
-    if (trim().isEmpty || length > 2083 || startsWith('mailto:')) {
+    if (isNullOrWhiteSpace || length > 2083 || startsWith('mailto:')) {
       return false;
     }
 
@@ -238,7 +240,7 @@ extension StringValidatorExtensions on String {
     split = tmp.split('#');
     tmp = _shift(split);
     final hash = split.join('#');
-    if (hash.trim().isNotEmpty && RegExp(r'\s').hasMatch(hash)) {
+    if (!hash.isNullOrWhiteSpace && RegExp(r'\s').hasMatch(hash)) {
       return false;
     }
 
@@ -246,7 +248,7 @@ extension StringValidatorExtensions on String {
     split = tmp.split('?');
     tmp = _shift(split);
     final query = split.join('?');
-    if (query.trim().isNotEmpty && RegExp(r'\s').hasMatch(query)) {
+    if (!query.isNullOrWhiteSpace && RegExp(r'\s').hasMatch(query)) {
       return false;
     }
 
@@ -254,7 +256,7 @@ extension StringValidatorExtensions on String {
     split = tmp.split('/');
     tmp = _shift(split);
     final path = split.join('/');
-    if (path.trim().isNotEmpty && RegExp(r'\s').hasMatch(path)) {
+    if (!path.isNullOrWhiteSpace && RegExp(r'\s').hasMatch(path)) {
       return false;
     }
 
@@ -365,5 +367,5 @@ extension StringValidatorExtensions on String {
 }
 
 String _shift(List<String> list) {
-  return list.isEmpty ? '' : list.removeAt(0);
+  return list.isNullOrEmpty ? '' : list.removeAt(0);
 }

@@ -1,3 +1,3 @@
 # Object Validators Component
 
-Object validators component.
+Simple object validators component.
