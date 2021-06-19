@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'settings.dart';
@@ -7,6 +8,7 @@ import 'settings.dart';
 class SharedPreferencesSettings extends ISettings {
   // ---------------------------- CONSTRUCTORS ----------------------------
   /// Create new [SharedPreferencesSettings].
+  @visibleForTesting
   const SharedPreferencesSettings(this._sp);
 
   // ------------------------------- FIELDS -------------------------------
