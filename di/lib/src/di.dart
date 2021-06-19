@@ -1,4 +1,4 @@
-import 'package:logging/logging.dart';
+import 'package:simple_logger/simple_logger.dart';
 
 /// Simple utility which helps to manage application services and retrieve
 /// the requested service when required.
